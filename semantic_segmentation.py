@@ -20,9 +20,9 @@ import segmentation_models_pytorch as smp
 from my_dataset import get_transforms
 from trainer import Trainer
 from tqdm import tqdm
+from glob import glob
 #For Transformations
 import cv2
-import glob
 import tifffile as tiff
 from torch.utils.data import Dataset, DataLoader, sampler
 import albumentations as aug
@@ -57,7 +57,8 @@ class semantic_segmentation():
         self.model = get_model(self.model_name)
     
     def train(self, epochs, lr=1e-3, bs=4):
-        model_trainer = Trainer(model = self.model, path=self.path, img_ext=self.img_ext, mask_ext=self.mask_ext, optim = "Ranger", loss = "BCE+DICE+IOU", lr = lr, bs = bs, name = self.model_name, shape=self.img_size[0])
+        print("Training Started!")
+        model_trainer = Trainer(model = self.model, path=self.path, img_ext=self.img_ext, mask_ext=self.mask_ext, save_path=self.save_path, optim = "Ranger", loss = "BCE+DICE+IOU", lr = lr, bs = bs, name = self.model_name, shape=self.img_size[0])
         model_trainer.do_cutmix = False
         model_trainer.freeze()
         model_trainer.fit(epochs//3)
@@ -72,12 +73,13 @@ class semantic_segmentation():
         image = img
         img = Compose([ToTensor()])(image = img)["image"]
         img = img.unsqueeze(0)
-        if(torch.cuda.is_available):
-            y_preds = model(img.type('torch.cuda.FloatTensor'))
-        else:
-            y_preds = model(img.type('torch.FloatTensor'))
+        with torch.no_grad():
+            if(torch.cuda.is_available):
+                y_preds = self.model(img.type('torch.cuda.FloatTensor'))
+            else:
+                y_preds = self.model(img.type('torch.FloatTensor'))
         y_preds = nn.Sigmoid()(y_preds)
-        y_preds = y_preds[0].squeeze(0).detach().cpu().numpy()
+        y_preds = y_preds[0].squeeze(0).cpu().data.numpy()
         y_preds = (y_preds > thresh).astype('uint8')*255
         image = image.astype('uint8')
         zeros = np.zeros((image.shape[0], image.shape[1], image.shape[2]))
@@ -87,24 +89,26 @@ class semantic_segmentation():
         cv2.imwrite(self.op_path+"/"+fname, dst)
 
     def predict(self, test_path, op_path, thresh=0.4):
+        print("Prediction Started!")
         self.op_path = op_path
         os.makedirs(op_path, exist_ok=True)
         checkpoint = torch.load(self.save_path+"/"+self.model_name+"_best.pth")
         self.model.load_state_dict(checkpoint["state_dict"])
         sing_f = False
         shape = self.img_size
-        if(os.path.isdir(path)):
-            files = glob(path+"/*.png")+glob(path+"/*.jpg")+glob(path+"/*.bmp")
+        if(os.path.isdir(test_path)):
+            files = glob(test_path+"/*.png")+glob(test_path+"/*.jpg")+glob(test_path+"/*.bmp")
         else:
-            files = [path]
+            files = [test_path]
             sing_f = True
-
+        print("Predicting on ", len(files), " files.")
         for i in tqdm(files):
             fname = i.split("\\")[-1]
             img = cv2.imread(i)
             img = cv2.resize(img, shape, interpolation = cv2.INTER_NEAREST)
-            do_predict(img, fname, thresh)
-            print(fname + " output saved in "+op_path+"/"+fname)
+            self.do_predict(img, fname, thresh)
+            if(sing_f):
+                print(fname + " output saved in "+op_path+"/"+fname)
             
 
 

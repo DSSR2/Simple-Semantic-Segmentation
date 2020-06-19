@@ -26,8 +26,9 @@ def epoch_log(phase, epoch, epoch_loss, meter, start):
 
 class Trainer(object):
     '''This class takes care of training and validation of our model'''
-    def __init__(self, model, path, img_ext, mask_ext, optim, loss, lr, bs, name, shape=256, crop_type=0):
+    def __init__(self, model, path, img_ext, mask_ext, save_path, optim, loss, lr, bs, name, shape=256, crop_type=0):
         self.num_workers = 4
+        self.save_path = save_path
         self.batch_size = {"train": bs, "val": 1}
         self.accumulation_steps = bs // self.batch_size['train']
         self.lr = lr
@@ -152,6 +153,7 @@ class Trainer(object):
 
         df_data=np.array([train_loss, train_dice, train_iou, train_f2, val_loss, val_dice, val_iou, val_f2]).T
         df = pd.DataFrame(df_data,columns = ["train_loss", "train_dice", "train_iou", "train_f2", "val_loss", "val_dice", "val_iou", "val_f2"])
+        os.makedirs("./logs/", exist_ok=True)
         df.to_csv('logs/'+self.name+'.csv')
 
     def fit(self, epochs):
@@ -174,8 +176,7 @@ class Trainer(object):
             if val_iou > self.best_val_iou:
                 print("* New optimal found according to IOU Score!, saving state *")
                 state["best_iou"] = self.best_val_iou = val_iou
-                os.makedirs('models/', exist_ok=True)
-                torch.save(state, 'models/'+self.name+'_best.pth')
-            torch.save(state, 'models/'+self.name+'_last.pth')
+                torch.save(state, self.save_path+"/"+self.name+'_best.pth')
+            torch.save(state, self.save_path+"/"+self.name+'_last.pth')
             print()
             self.train_end()
