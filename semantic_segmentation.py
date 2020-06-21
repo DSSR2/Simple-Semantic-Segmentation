@@ -43,6 +43,10 @@ def seed_everything(seed):
 seed_everything(69)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
+
+'''
+Semantic Segmentation Class
+'''
 class semantic_segmentation():
     def __init__(self, model="S0", path="./Data/", img_ext=".jpg", mask_ext=".png", save_path=os.getcwd()+"/models/", img_size=(256,256)):
         self.path = path
@@ -90,10 +94,7 @@ class semantic_segmentation():
         img = Compose([ToTensor()])(image = img)["image"]
         img = img.unsqueeze(0)
         with torch.no_grad():
-            if(torch.cuda.is_available):
-                y_preds = self.model(img.type('torch.cuda.FloatTensor'))
-            else:
-                y_preds = self.model(img.type('torch.FloatTensor'))
+            y_preds = self.model(img.type('torch.FloatTensor'))
         y_preds = nn.Sigmoid()(y_preds)
         y_preds = y_preds[0].squeeze(0).cpu().data.numpy()
         y_preds = (y_preds > thresh).astype('uint8')*255
@@ -113,6 +114,7 @@ class semantic_segmentation():
         sing_f = False
         shape = self.img_size
         if(os.path.isdir(test_path)):
+            print("Loading files from ", test_path)
             files = glob(test_path+"/*.png")+glob(test_path+"/*.jpg")+glob(test_path+"/*.bmp")
         else:
             files = [test_path]
@@ -155,38 +157,3 @@ def get_model(model_name):
     else:
         print("Unknown model ", model_name, ". Loading S0")
         return smp.Unet("efficientnet-b0", encoder_weights='imagenet', classes=1, activation=None)
-
-
-
-
-
-
-# def plot(img, model, thresh):
-#     image = img
-#     augmented = get_transforms('test')(image = img)
-#     img = augmented['image']
-#     img = img.unsqueeze(0)
-#     y_preds = model(img.type('torch.cuda.FloatTensor'))
-#     y_preds = nn.Sigmoid()(y_preds)
-#     y_preds = y_preds[0].squeeze(0).detach().cpu().numpy()
-#     y_preds = (y_preds > thresh).astype('uint8')*255
-#     res = np.hstack([image[:, :, 0], y_preds])
-#     plt.imshow(res)
-#     plt.show()
-    
-# def predict(model_path, img_path = None, folder_path = None, thresh = 0.4):
-#     print(model_path)
-#     checkpoint = torch.load(model_path)
-#     m.load_state_dict(checkpoint["state_dict"])
-#     shape = (256, 256)
-#     if folder_path is not None:
-#         path = os.listdir(folder_path)
-#         for i in range(len(path)):
-#             img = cv2.imread(os.path.join(folder_path, path[i]))
-#             img = cv2.resize(img, shape, interpolation = cv2.INTER_NEAREST)
-#             plot(img, m, thresh)
-
-#     elif img_path is not None:               
-#         img = cv2.imread(img_path[:-3])
-#         img = cv2.resize(img, shape, interpolation = cv2.INTER_NEAREST)
-#         plot(img, m, thresh)
