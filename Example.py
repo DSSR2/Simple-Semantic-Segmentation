@@ -7,5 +7,3 @@ segmenter = semantic_segmentation("./Models/", "./Data/", save_path="./Models/")
 segmenter.train(10)
 
 segmenter.predict("./Data/Test", "./Output/")
-
-#segmenter.evaluate()
