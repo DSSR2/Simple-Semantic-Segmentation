@@ -134,4 +134,3 @@ Output Path: ./Output/
 Threshold: 0.4
 ```
 
-## Acknowledgements
