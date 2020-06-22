@@ -1,5 +1,4 @@
 import sys
-sys.path.insert(0, '../over9000/')
 import os
 import torch
 import torch.nn as nn

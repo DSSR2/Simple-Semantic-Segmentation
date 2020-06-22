@@ -1,7 +1,10 @@
 import warnings
 warnings.filterwarnings("ignore")
-
 import os
+import sys
+os.system(f"""git clone https://github.com/mgrankin/over9000.git""")
+sys.path.insert(0, 'over9000/')
+
 import numpy as np
 import time
 import cv2
@@ -13,7 +16,6 @@ import torch.backends.cudnn as cudnn
 import pandas as pd
 import torch.optim as optim
 import random
-import sys
 import glob
 import matplotlib.pyplot as plt
 import segmentation_models_pytorch as smp
@@ -139,7 +141,6 @@ class semantic_segmentation():
 
         print("F2 Mean \tF2 Max \tF2 Min")
         print(df["F2"].mean(), "\t", df["F2"].max(), "\t", df["F2"].min())
-        return 0
 
     def predict(self, test_path, op_path, thresh=0.4):
         print("Prediction Started!")

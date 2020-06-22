@@ -12,19 +12,19 @@ mask_ext=".png" (Default)
 # Create model
 segmenter = semantic_segmentation("S0", "./Data/", save_path="./Models/")
 # Train model
-segmenter.train(10)
+segmenter.train(3)
 # Predict using model
-segmenter.predict("Data/Test/Images/", "./Output/")
+#segmenter.predict("Data/Test/Images/", "./Output/")
 
 '''
 Using a pretrained model
 Path to model: "./Models/"
 '''
 # Load pretrained model
-segmenter = semantic_segmentation("./Models/")
+#segmenter = semantic_segmentation("./Models/")
 
 # Predict using pretrained model
-segmenter.predict("Data/Test/Images/", "./Output/")
+#segmenter.predict("Data/Test/Images/", "./Output/")
 
 
 '''
@@ -32,4 +32,4 @@ Evaluate a model
 Works on trained networks as well as models built from scratch
 '''
 
-segmenter.evaluate("./Data/Evaluate")
+#segmenter.evaluate("./Data/Evaluate")

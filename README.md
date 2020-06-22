@@ -18,29 +18,18 @@ S5 is the largest and most complex. It will take some time to train but give a v
 
 If you have a simple dataset with uniform objects and less textures, start with S0 and move up if accuarcy is not satisfactory. If the dataset is complex, start with S4 and move up if accuracy is not satisfactory. 
 
-## Preprocessing: 
-To ensure higher accuracy, the system carries out basic preprocessing and image augmentation. If required, the user can take control and set the following parameters:
-```python
-shear_range - 0-1, Default = 0
-zoom_range - 0-1, Default = 0
-horizontal_flip - True/False, Default = True
-vertical_flip - True/False, Default = True
-rotation_range - 0-360 degrees, Default = 10
-width_shift_range - 0-1, Default = 0
-height_shift_range - 0-1, Default = 0
-```
-## Annotation options:
+## Annotation Details:
 ### Masks
-If you have used any commonly avaibale tool to build the segmentation maps on your images and have exported the masks as separate images as showed in the figure, you can upload the images and the masks as separate folders to the system. Make sure the name of the image and the mask are the same so that the mask for the corresponidng image can be correctly loaded. 
+If you have used any commonly avaibale tool to build the segmentation maps on your images and have exported the masks as separate images as showed in the figure, you can upload the images and the masks as separate folders to the system. 
+
 The size of the image and map should also be the same. While most masks are *.png files, we also provide support for other formats. 
 
-![alt text](Images/Mask.png "Image and segmentation map")
+The image and the mask have to have the same name so that the software can map the images and their maps correctly. The images and their corresponding masks are stored in the folder structure shown below. 
 
-### Annotation tool
-The other option is to use the provided annotation tool to manually make/add polygon maps to the image in question. This tool can be used on non annotated images as well as previosuly annotated images in case changes need to be made. 
+![alt text](Images/cat_seg.jpeg "Image and segmentation map")
 
 ## Folder structure to be followed:
-For each image *.jpg, there must be a corresponding mask with the same filename in the mask folder. 
+For each image, there must be a corresponding mask with the same filename in the mask folder. 
 ```
 Root
     |--- Train
@@ -73,10 +62,74 @@ Root
     |   |   |--- ...
 
 ```
-## Mask and Image details:
-You can use any popular image annotation tool to annotate the image using the tool of your choice and convert from ```json``` or ```xml``` to ```.png``` segmentation maps.
 
-The image and the mask have to have the same name so that the software can map the images and their maps correctly. The images and their corresponding masks are stored in the folder structure shown above. 
+## Function Definitions:
+_* - required_
+### 1. _semantic\_segmentation()_ constructor
+The constructor is robust and can be used for creating a new model as well as loading existing models. 
+
+Data folder should be a root folder containing _Images_ and _Masks_ folders as seen in the folder structure given below. 
+#### Training from scratch: 
+```python
+semantic_segmentation(Model_Name*, Data_Path*,
+                    img_extension, mask_extension,
+                    Save_Path*, Image_Size)
+```
+#### Loading a pretrained model: 
+```python 
+semantic_segmentation(Path_to_Model*, Data_Path*,
+                    img_extension, mask_extension,
+                    Save_Path*, Image_Size)
+```
+#### Defaults:
+```
+Model Name: S0
+Data Path: ./Data/Train/
+Image Extension: *.jpg
+Mask Extension: *.png
+Save Path: ./Models/
+Image Size: 256*256
+```
+
+### 2. _train()_ funciton:
+This is a member function and is used to train the model. For most cases, start with 30 epochs. Based on loss and IoU, you can deicide to increase or decrese number of epochs. 
+
+The system automatically splits the data into validation and train samples
+```python
+train(Number_of_Epochs*)
+```
+
+### 3. _evaluate()_ function: 
+Member function to numerically evaluate the model. Scores reported are IoU, Dice and F2. Data path must include _Images_ and _Masks_ folders to ensure comparasion between prediction and ground truth can be made. 
+
+Model must be trained or loaded before running evaluation to ensure accurate resuts. 
+
+```python
+evaluate(Path_to_Data*)
+```
+#### Defaults:
+```
+Path to Data: ./Data/Evaluate/
+```
+
+### 4. _predict()_ function:
+A unified function for both file and folder testing. We will try and run the algorithm on all famous image formats found in the folder. The outputs are overlayed on the input image and stored in the output folder defined by you. Optionally, you can set a confidence threhsold to make the system mark objects that are as per your requirements.
+
+Threshold defaults to 0.4 and output path defaults to _./Output/_
 
 ## Code Samples
 The complete example code is provided in [Example.py](./Example.py)
+
+#### Folder testing
+```python
+predict(*Path/to/Folder/, *Output/Path, Threshold)
+``` 
+#### File testing
+```python
+predict(*Path/to/File.jpg, *Output/Path, Threshold)
+```
+#### Defaults:
+```
+Output Path: ./Output/
+Threshold: 0.4
+```
