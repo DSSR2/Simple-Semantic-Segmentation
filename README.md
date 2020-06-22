@@ -133,3 +133,5 @@ predict(*Path/to/File.jpg, *Output/Path, Threshold)
 Output Path: ./Output/
 Threshold: 0.4
 ```
+
+## Acknowledgements
