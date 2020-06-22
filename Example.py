@@ -25,3 +25,11 @@ segmenter = semantic_segmentation("./Models/")
 
 # Predict using pretrained model
 segmenter.predict("Data/Test/Images/", "./Output/")
+
+
+'''
+Evaluate a model
+Works on trained networks as well as models built from scratch
+'''
+
+segmenter.evaluate("./Data/Evaluate")

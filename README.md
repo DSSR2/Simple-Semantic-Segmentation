@@ -43,16 +43,35 @@ The other option is to use the provided annotation tool to manually make/add pol
 For each image *.jpg, there must be a corresponding mask with the same filename in the mask folder. 
 ```
 Root
-    |--- Images
-    |   |--- File1.jpg
-    |   |--- File2.jpg
-    |   |--- File3.jpg
-    |   |--- ...
-    |--- Masks
-    |   |--- File1.png
-    |   |--- File2.png
-    |   |--- File3.png
-    |   |--- ...
+    |--- Train
+    |   |--- Images
+    |   |   |--- File1.jpg
+    |   |   |--- File2.jpg
+    |   |   |--- File3.jpg
+    |   |   |--- ...
+    |   |--- Masks
+    |   |   |--- File1.png
+    |   |   |--- File2.png
+    |   |   |--- File3.png
+    |   |   |--- ...
+    |--- Evaluate
+    |   |--- Images
+    |   |   |--- File1.jpg
+    |   |   |--- File2.jpg
+    |   |   |--- File3.jpg
+    |   |   |--- ...
+    |   |--- Masks
+    |   |   |--- File1.png
+    |   |   |--- File2.png
+    |   |   |--- File3.png
+    |   |   |--- ...
+    |--- Test
+    |   |--- Images
+    |   |   |--- File1.jpg
+    |   |   |--- File2.jpg
+    |   |   |--- File3.jpg
+    |   |   |--- ...
+
 ```
 ## Mask and Image details:
 You can use any popular image annotation tool to annotate the image using the tool of your choice and convert from ```json``` or ```xml``` to ```.png``` segmentation maps.
